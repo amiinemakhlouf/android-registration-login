@@ -10,6 +10,8 @@ import java.util.Map;
 
 public class User {
 
+
+    private  String uid;
     private String email;
     private String fullName;
     private String profession;
@@ -25,8 +27,9 @@ public class User {
         this.email = email;
     }
 
-    public User(String fullName, String email, String profession,
+    public User(String uid,String fullName, String email, String profession,
                  String workplace, String phone) {
+        this.uid=uid;
         this.email = email;
         this.fullName = fullName;
         this.profession = profession;

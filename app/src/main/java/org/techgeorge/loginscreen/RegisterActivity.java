@@ -40,6 +40,8 @@ public class RegisterActivity extends AppCompatActivity {
     private String password;
     private User user;
     private FirebaseAuth mAuth;
+    private String uid;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,56 +59,54 @@ public class RegisterActivity extends AppCompatActivity {
         femaleCheckBox = findViewById(R.id.female_checkbox);
         registerButton = findViewById(R.id.register_button);
         database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference(USERS);
+        mDatabase = database.getReference();
         mAuth = FirebaseAuth.getInstance();
 
-        registerButton.setOnClickListener(new View.OnClickListener(){
+        registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //insert data into firebase database
-                if(emailEditText.getText().toString() != null && passwordEditText.getText().toString() != null) {
+                if (emailEditText.getText().toString() != null && passwordEditText.getText().toString() != null) {
                     fname = nameEditText.getText().toString();
                     email = emailEditText.getText().toString();
                     phone = phoneEditText.getText().toString();
                     profession = professionEditText.getText().toString();
                     workplace = workEditText.getText().toString();
                     password = passwordEditText.getText().toString();
-                    user = new User(fname, email, profession, workplace, phone);
-                    registerUser();
+                    user = new User(uid, fname, email, profession, workplace, phone);
+                    registerUser(user);
+
                 }
             }
         });
 
     }
 
-    public void registerUser() {
+    public void registerUser(User user) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d(TAG, "createUserWithEmail:success");
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        updateUI(user);
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                        Toast.makeText(RegisterActivity.this, "Authentication failed.",
-                                Toast.LENGTH_SHORT).show();
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "createUserWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            uid = user.getUid();
+                            mDatabase.child("adhérants").child(uid).setValue(user);
+
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(RegisterActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-        });
+                });
     }
 
     /**
      * adding user information to database and redirect to login screen
      * @param currentUser
      */
-    public void updateUI(FirebaseUser currentUser) {
-        String keyid = mDatabase.push().getKey();
-        mDatabase.child(keyid).setValue(user); //adding user info to database
-        Intent loginIntent = new Intent(this, MainActivity.class);
-        startActivity(loginIntent);
-    }
+
 }

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,7 +39,7 @@ public class ProfileActivity extends AppCompatActivity {
         email = intent.getStringExtra("email");
 
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference userRef = rootRef.child(USERS);
+        DatabaseReference userRef = rootRef.child("adhérants");
         Log.v("USERID", userRef.getKey());
 
         occupationTxtView = findViewById(R.id.occupation_textview);
@@ -58,7 +59,7 @@ public class ProfileActivity extends AppCompatActivity {
         twitterImageView = findViewById(R.id.twitter_imageview);
 
         // Read from the database
-        userRef.addValueEventListener(new ValueEventListener() {
+        userRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             String fname, mail, profession, workplace, phone;
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
